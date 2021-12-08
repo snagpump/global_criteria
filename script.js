@@ -1,11 +1,21 @@
-//var settings = [];
+//
+//TODO: Множество Парето
+//
 
-var numOfFactors;
-var numOfAlternatives;
-var numOfOptions = 4;
+var numOfFactors;       //Числов критериев
+var numOfAlternatives;  //Число альтернатив
+var numOfOptions = 4;   //Число настроек критериев (мин, макс, вес, б/м)
 
-var data_matrix = [];
-let factor_settings_matrix = [];    //[[min, max, weight, direction, difference], [...]]
+var data_matrix = [];               //Матрица данных
+var factor_settings_matrix = [];    //Матрица настроек критериев
+
+var factor_weight_array = [];           //Массив весов критериев
+var factor_weight_sum = 0;              //Сумма весов критериев
+var norm_factor_weight_array = [];      //Массив норированных весов критериев
+var norm_data_matrix = [];              //Матрица нормированных данных
+var global = {};                        //Массив глобальных критериев альтернатив
+var max_global = 0;                     //Наибольший глобальный критерий
+var max_global_index = 0;               //Индекс альтернативы с наибольшим глобальным критерием
 
 function addPanel() {
     numOfAlternatives = document.getElementById("numOfAlternatives").value;
@@ -15,24 +25,21 @@ function addPanel() {
     let body = document.body;
     
     data_table.style.width = "100px";
-
     data_table.id = "data_table";
 
-    //Генерация заголовков первой строки
+    //Генерация таблицы данных
     let tr_data_table = data_table.insertRow();
     for (let j = 0; j - 1 < numOfAlternatives; j++) {
         if (j === 0) {
             const td = tr_data_table.insertCell();
         } else {
             const td = tr_data_table.insertCell();
-            //td.innerHTML += `<td id="col_head_${j}" value="A${j}">А${j}</td>`; 
             td.innerHTML += `A${j}`;
             td.id = `col_head_${j}`;
             td.setAttribute("value", `A${j}`);
         }
     }
     
-    //Генерация таблицы
     for (let i = 1; i - 1 < numOfFactors; i++) {
         const tr = data_table.insertRow();
         for (let j = 0; j - 1 < numOfAlternatives; j++) {
@@ -52,7 +59,7 @@ function addPanel() {
     body.appendChild(data_table);
     body.innerHTML += "<br>";
 
-    ///Генерация таблицы настройки критериев
+    //Генерация таблицы настройки критериев
     const factor_table = document.createElement("table");
     factor_table.id = "factor_table";
     factor_table.style.border = "1px solid black";
@@ -117,21 +124,11 @@ function addPanel() {
 }
 
 function Calculation() {
-
-    //Подготовка
-    let factor_weight_array = [];           //[settings_array[0][3], settings_array[1][3], ...]
-    let factor_weight_sum = 0;              //[settings_array[0][3] + settings_array[1][3]...]
-    let norm_factor_weight_array = [];      //[settings_array[0][3]/weight_sum, settings_array[1][3]/weight_sum, ...]
-    let norm_data_matrix = [];
-    let global = [];
-    let max_global = 0;
-    let max_global_index = 0;
-    
     let body = document.body;
     let data_table = document.getElementById("data_table");
     let factor_table = document.getElementById("factor_table");
 
-    //Добаывление данных в матрицу данных
+    //Добаывление данных из таблицы в матрицу данных
     for (let i = 1; i < data_table.rows.length; i++) {
         let temp_array = [];
         for (let j = 1; j < data_table.rows[i].cells.length; j++) {
@@ -141,7 +138,7 @@ function Calculation() {
         data_matrix.push(temp_array);
     }
 
-    //Добавление настроек критериев в массив
+    //Добавление настроек критериев из таблицы в массив настроек критериев
     for (let i = 1; i < factor_table.rows.length; i++) {
         let temp_array = [];
         for (let j = 0; j < factor_table.rows[i].cells.length; j++) {
@@ -161,74 +158,79 @@ function Calculation() {
         temp_array.push(temp_array[1] - temp_array[0]);
         factor_settings_matrix.push(temp_array);
     }
-    //console.log(data_matrix);
-    //console.log(factor_settings_matrix);
     
+    //Добавление весов в массив весов критериев 
     for (let i = 0; i < factor_settings_matrix.length; i++) {
         factor_weight_array.push(factor_settings_matrix[i][2]);
     }
-    //console.log(factor_weight_array)
 
+    //Вычисление суммы весов критериев
     for (let i = 0; i < factor_weight_array.length; i++) {
         factor_weight_sum += factor_weight_array[i];
     }
-    //console.log(factor_weight_sum);
 
+    //Добавление нормированных весов в массив нормированных весов критериев
     for (let i = 0; i < factor_weight_array.length; i++) {
         norm_factor_weight_array.push(factor_weight_array[i]/factor_weight_sum);
     }
-    //console.log(norm_factor_weight_array);
-    //
     
     //Нормированная матрица данных
     for (let i = 0; i < data_matrix.length; i++) {
         let temp_array = [];
         if (factor_settings_matrix[i][3] === 'less') {
             for (let j = 0; j < data_matrix[i].length; j++) {
-                //console.log(`max - ${factor_settings_matrix[i][1]}; data - ${data_matrix[i][j]}; max-min ${factor_settings_matrix[i][4]}`);
-                //console.log(parseFloat((factor_settings_matrix[i][1] - data_matrix[i][j]) / factor_settings_matrix[i][4]));
                 temp_array.push((factor_settings_matrix[i][1] - data_matrix[i][j]) / factor_settings_matrix[i][4]);
             }
             norm_data_matrix.push(temp_array);
         } else if (factor_settings_matrix[i][3] === 'more') {
             for (let j = 0; j < data_matrix[i].length; j++) {
-                //console.log(`data - ${data_matrix[i][j]}; min - ${factor_settings_matrix[i][0]}; max-min ${factor_settings_matrix[i][4]}`);
-                //console.log(parseFloat((data_matrix[i][j] - factor_settings_matrix[i][0]) / factor_settings_matrix[i][4]));
                 temp_array.push((data_matrix[i][j] - factor_settings_matrix[i][0]) / factor_settings_matrix[i][4]);
             }
             norm_data_matrix.push(temp_array);
         } 
     }
-    console.log(norm_data_matrix);
-    console.log(norm_factor_weight_array);
-
+    
     //Вычисление глобальных критериев
     for (let j = 0; j < norm_data_matrix[0].length; j++) {
         let sum = 0;
+        let v = document.getElementById(`col_head_${j + 1}`).getAttribute("value");
         
         var col = norm_data_matrix.map(
             function(value, index) { return value[j] }
         );
 
         for (let i = 0; i < norm_data_matrix.length; i++) {
-            console.log(`col:${j} row:${i}`);
-            console.log(`${norm_factor_weight_array[i]} * ${col[i]}`);
             sum += norm_factor_weight_array[i] * col[i];
         }
-        console.log(sum);
-        global.push(sum);
+        console.log(`A${j + 1}: ${sum}`);
+        global[v] = sum;
     }
-    console.log(global);
 
-    max_global = Math.max(...global);
-    console.log(max_global);
-    max_global_index = global.indexOf(Math.max(...global)) + 1;
-    console.log(max_global_index);
+    //Ранжировка альтернатив
+    var global_sorted = Object.keys(global).map(function(key) {
+        return [key, global[key]];
+    });
+    
+    global_sorted.sort(function(first, second) {
+        return second[1] - first[1];
+    });
+
+    max_global_index = global_sorted[Object.keys(global_sorted)[0]][0];
+    max_global = global_sorted[Object.keys(global_sorted)[0]][1];
+
+    //Вывод ранжировки альтернатив
+    body.innerHTML += "<p>"
+    for (let i = 0; i < global_sorted.length; i++) {
+        if (i === global_sorted.length - 1) {
+            body.innerHTML += global_sorted[Object.keys(global_sorted)[i]][0];
+        } else {
+            body.innerHTML += global_sorted[Object.keys(global_sorted)[i]][0] + " > ";
+        }
+    }
+    body.innerHTML += "</p>";
 
     body.innerHTML += `
-        <br>
-        <p>Лучший вариант: <b>${document.getElementById(`col_head_${max_global_index}`).getAttribute("value")}</b> с глобальным критерием ${max_global}</p>
-        <br>
+        <p>Лучший вариант: <b>${max_global_index}</b> с глобальным критерием ${max_global}</p>
         <button id="clear" onclick='document.location.reload(true)'>Заново</button>
     `;
 } 
