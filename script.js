@@ -1,7 +1,3 @@
-//
-//TODO: Множество Парето
-//
-
 var numOfFactors;       //Числов критериев
 var numOfAlternatives;  //Число альтернатив
 var numOfOptions = 4;   //Число настроек критериев (мин, макс, вес, б/м)
@@ -28,6 +24,7 @@ function addPanel() {
     data_table.id = "data_table";
 
     //Генерация таблицы данных
+    //Заголовки
     let tr_data_table = data_table.insertRow();
     for (let j = 0; j - 1 < numOfAlternatives; j++) {
         if (j === 0) {
@@ -40,6 +37,7 @@ function addPanel() {
         }
     }
     
+    //Ячейки
     for (let i = 1; i - 1 < numOfFactors; i++) {
         const tr = data_table.insertRow();
         for (let j = 0; j - 1 < numOfAlternatives; j++) {
@@ -51,7 +49,7 @@ function addPanel() {
                     td.innerHTML += "К" + i;
                 } else {
                     const td = tr.insertCell();
-                    td.innerHTML += "<input type='text' id='data_inp_" + i + "_" + j + "'></input>";       
+                    td.innerHTML += "<input type='number' class='num_inp' id='data_inp_" + i + "_" + j + "'></input>";       
                 }
             }
         }
@@ -60,6 +58,7 @@ function addPanel() {
     body.innerHTML += "<br>";
 
     //Генерация таблицы настройки критериев
+    //Заголовки
     const factor_table = document.createElement("table");
     factor_table.id = "factor_table";
     factor_table.style.border = "1px solid black";
@@ -73,6 +72,7 @@ function addPanel() {
         </tr>
     `;
 
+    //Ячейки
     for (let i = 1; i - 1 < numOfFactors; i++) {
         const tr = factor_table.insertRow();
         for (let j = 0; j - 1 < numOfOptions; j++) {
@@ -108,7 +108,7 @@ function addPanel() {
                     `;
                 } else {
                     const td = tr.insertCell();
-                    td.innerHTML += "<input type='text' id='inp_" + i + "_" + j + "'></input>";       
+                    td.innerHTML += "<input type='number' class='num_inp' id='inp_" + i + "_" + j + "'></input>";       
                 }
             }
         }
@@ -123,6 +123,7 @@ function addPanel() {
     `;
 }
 
+//Вычисления
 function Calculation() {
     let body = document.body;
     let data_table = document.getElementById("data_table");
@@ -233,4 +234,6 @@ function Calculation() {
         <p>Лучший вариант: <b>${max_global_index}</b> с глобальным критерием ${max_global}</p>
         <button id="clear" onclick='document.location.reload(true)'>Заново</button>
     `;
+
+    //TODO: Множество Парето
 } 
