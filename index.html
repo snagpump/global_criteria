@@ -1,16 +1,14 @@
 <html>
     <head>
-        <title>СППР ГлобКрит</title>
+        <title>СППР</title>
         <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script src="./script.js"></script>
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
         <style>
             * {
-                font-family: 'Roboto', sans-serif;
+                font-family: monospace;
             }
-            
+
             table, td {
                 border: 1px solid black;
             }
@@ -22,10 +20,10 @@
     </head>
     <body>
         <h1>Образование глобального критерия</h1>
-        <label>Количество альтернатив <input type="text" id="numOfAlternatives"></label>
+        <label>Количество альтернатив <input type="number" id="numOfAlternatives"></label>
         <br>
         <br>
-        <label>Количество критериев <input type="text" id="numOfFactors"></label>
+        <label>Количество критериев <input type="number" id="numOfFactors"></label>
         <br>
         <br>
         <button id="add" onclick="addPanel()">Добавить</button>
